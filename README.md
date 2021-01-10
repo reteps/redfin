@@ -3,7 +3,7 @@
 ### Installation
 
 ```
-$ python3 -m pip install python-redfin
+$ python3 -m pip install redfin
 ```
 
 ### Usage
