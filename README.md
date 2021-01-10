@@ -18,10 +18,10 @@ address = '4544 Radnor St, Detroit Michigan'
 
 response = client.search(address)
 url = response['payload']['exactMatch']['url']
-initial_info = engine.initial_info(url)
+initial_info = client.initial_info(url)
 
-property_id = data['payload']['propertyId']
-listing_id = data['payload']['listingId']
+property_id = initial_info['payload']['propertyId']
+listing_id = initial_info['payload']['listingId']
 
 mls_data = client.below_the_fold(property_id, listing_id)
 ```
