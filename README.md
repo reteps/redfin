@@ -16,7 +16,7 @@ client = Redfin()
 
 address = '4544 Radnor St, Detroit Michigan'
 
-response = client.search(ADDRESS)
+response = client.search(address)
 url = response['payload']['exactMatch']['url']
 initial_info = engine.initial_info(url)
 
