@@ -1,14 +1,14 @@
 from distutils.core import setup
 setup(
-  name = 'python-redfin',         # How you named your package folder (MyLib)
-  packages = ['python-redfin'],   # Chose the same as "name"
+  name = 'redfin',         # How you named your package folder (MyLib)
+  packages = ['redfin'],   # Chose the same as "name"
   version = '0.1',      # Start with a small number and increase it with every change you make
   license='MIT',        # Chose a license from here: https://help.github.com/articles/licensing-a-repository
   description = 'A python wrapper around the unofficial redfin API.',   # Give a short description about your library
   author = 'Peter Stenger',                   # Type in your name
   author_email = 'peter.promotions.stenger@gmail.com',      # Type in your E-Mail
-  url = 'https://github.com/reteps/python-redfin',   # Provide either the link to your github or to your website
-  download_url = 'https://github.com/reteps/python-redfin/archive/0.1.tar.gz',    # I explain this later on
+  url = 'https://github.com/reteps/redfin',   # Provide either the link to your github or to your website
+  download_url = 'https://github.com/reteps/redfin/archive/0.1.tar.gz',    # I explain this later on
   keywords = ['redfin', 'api', 'wrapper'],   # Keywords that define your package best
   install_requires=[            # I get to this in a second
           'requests'
