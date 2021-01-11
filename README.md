@@ -1,5 +1,6 @@
 # Python-Redfin
 
+A wrapper around redfin's unofficial API. Anything on the redfin site can be accessed through this module without screen scraping.
 ### Installation
 
 ```
