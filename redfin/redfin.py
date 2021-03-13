@@ -1,6 +1,7 @@
 import requests
 import json
 
+
 class Redfin:
     def __init__(self):
         self.base = 'https://redfin.com/stingray/'
@@ -17,26 +18,30 @@ class Redfin:
         })
 
     def meta_request(self, url, kwargs):
-        response = requests.get(self.base + url, params=kwargs, headers=self.user_agent_header)
+        response = requests.get(
+            self.base + url, params=kwargs, headers=self.user_agent_header)
         response.raise_for_status()
         return json.loads(response.text[4:])
 
     # Url Requests
 
     def initial_info(self, url, **kwargs):
-        return self.meta_request('api/home/details/initialInfo', {'path': url,**kwargs})
+        return self.meta_request('api/home/details/initialInfo', {'path': url, **kwargs})
 
     def page_tags(self, url, **kwargs):
         return self.meta_request('api/home/details/v1/pagetagsinfo', {'path': url, **kwargs})
 
     def primary_region(self, url, **kwargs):
         return self.meta_request('api/home/details/primaryRegionInfo', {'path': url, **kwargs})
-    
+
     # Search
     def search(self, query, **kwargs):
         return self.meta_request('do/location-autocomplete', {'location': query, 'v': 2, **kwargs})
 
     # Property ID Requests
+    def below_the_fold(self, property_id, **kwargs):
+        return self.meta_property('belowTheFold', {'propertyId': property_id, **kwargs}, page=True)
+
     def hood_photos(self, property_id, **kwargs):
         return self.meta_request('api/home/details/hood-photos', {'propertyId': property_id, **kwargs})
 
@@ -87,9 +92,6 @@ class Redfin:
     def above_the_fold(self, property_id, listing_id, **kwargs):
         return self.meta_property('aboveTheFold', {'propertyId': property_id, 'listingId': listing_id, **kwargs})
 
-    def below_the_fold(self, property_id, listing_id, **kwargs):
-        return self.meta_property('belowTheFold', {'propertyId': property_id, 'listingId': listing_id, **kwargs}, page=True)
-    
     def property_parcel(self, property_id, listing_id, **kwargs):
         return self.meta_property('propertyParcelInfo', {'propertyId': property_id, 'listingId': listing_id, **kwargs}, page=True)
 
