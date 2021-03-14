@@ -1,0 +1,54 @@
+Metadata-Version: 2.1
+Name: redfin
+Version: 0.1.1
+Summary: A python wrapper around the unofficial redfin API.
+Home-page: https://github.com/reteps/redfin
+Author: Peter Stenger
+Author-email: peter.promotions.stenger@gmail.com
+License: MIT
+Description: # Python-Redfin
+        
+        A wrapper around redfin's unofficial API. Anything on the redfin site can be accessed through this module without screen scraping.
+        ### Installation
+        
+        ```
+        $ python3 -m pip install redfin
+        ```
+        
+        ### Usage
+        
+        ```python3
+        
+        from redfin import Redfin
+        
+        client = Redfin()
+        
+        address = '4544 Radnor St, Detroit Michigan'
+        
+        response = client.search(address)
+        url = response['payload']['exactMatch']['url']
+        initial_info = client.initial_info(url)
+        
+        property_id = initial_info['payload']['propertyId']
+        listing_id = initial_info['payload']['listingId']
+        
+        mls_data = client.below_the_fold(property_id, listing_id)
+        ```
+        
+        ### Documentation
+        
+        See the file for all functions, pop open requests on redfin to see which one you want.
+        
+Keywords: redfin,api,wrapper
+Platform: UNKNOWN
+Classifier: Development Status :: 3 - Alpha
+Classifier: Intended Audience :: Developers
+Classifier: Topic :: Software Development :: Build Tools
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.4
+Classifier: Programming Language :: Python :: 3.5
+Classifier: Programming Language :: Python :: 3.6
+Classifier: Programming Language :: Python :: 3.7
+Classifier: Programming Language :: Python :: 3.8
+Description-Content-Type: text/markdown

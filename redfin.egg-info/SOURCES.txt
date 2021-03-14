@@ -1,0 +1,9 @@
+README.md
+setup.py
+redfin/__init__.py
+redfin/redfin.py
+redfin.egg-info/PKG-INFO
+redfin.egg-info/SOURCES.txt
+redfin.egg-info/dependency_links.txt
+redfin.egg-info/requires.txt
+redfin.egg-info/top_level.txt
