@@ -30,6 +30,9 @@ avm_details = client.avm_details(property_id, listing_id)
 
 
 ```
+### Usage Notes
+
++ sometimes `below_the_fold` lacks propertyHistoryInfo -- see [#11](https://github.com/reteps/redfin/issues/11) if this is needed
 
 ### Documentation
 
