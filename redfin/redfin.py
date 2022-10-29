@@ -101,6 +101,9 @@ class Redfin:
     def customer_conversion_info_off_market(self, property_id, listing_id, **kwargs):
         return self.meta_property('customerConversionInfo/offMarket', {'propertyId': property_id, 'listingId': listing_id, **kwargs}, page=True)
 
+    def customer_conversion_info_on_market(self, property_id, listing_id, **kwargs):
+        return self.meta_property('customerConversionInfo/onMarket', {'propertyId': property_id, 'listingId': listing_id, **kwargs}, page=True)
+        
     def rental_estimate(self, property_id, listing_id, **kwargs):
         return self.meta_property('rental-estimate', {'propertyId': property_id, 'listingId': listing_id, **kwargs})
 
