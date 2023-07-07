@@ -89,8 +89,8 @@ class Redfin:
     def nearby_homes(self, property_id, listing_id, **kwargs):
         return self.meta_property('nearbyhomes', {'propertyId': property_id, 'listingId': listing_id, **kwargs})
 
-    def above_the_fold(self, property_id, listing_id, **kwargs):
-        return self.meta_property('aboveTheFold', {'propertyId': property_id, 'listingId': listing_id, **kwargs})
+    def above_the_fold(self, property_id, **kwargs):
+        return self.meta_property('aboveTheFold', {'propertyId': property_id, **kwargs})
 
     def property_parcel(self, property_id, listing_id, **kwargs):
         return self.meta_property('propertyParcelInfo', {'propertyId': property_id, 'listingId': listing_id, **kwargs}, page=True)
