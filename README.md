@@ -1,39 +1,133 @@
-# Python-Redfin
+# redfin
 
-A wrapper around redfin's unofficial API. Anything on the redfin site can be accessed through this module without screen scraping.
+A Python wrapper around the unofficial Redfin API.
 
-### Installation
+**Maintained fork:** [`prestomation/pyredfin`](https://github.com/prestomation/pyredfin) — fixes 403 errors and adds new methods.  
+**PyPI package name:** `redfin` (unchanged from the original `reteps/redfin`).
 
+## Installation
+
+```bash
+pip install redfin
 ```
-$ python3 -m pip install redfin
+
+Or install directly from GitHub (latest fixes):
+
+```bash
+pip install "redfin @ git+https://github.com/prestomation/pyredfin@main"
 ```
 
-### Usage
+## Usage
 
-```python3
-
+```python
 from redfin import Redfin
 
 client = Redfin()
 
-address = '4544 Radnor St, Detroit Michigan'
-
-response = client.search(address)
+response = client.search('1600 Amphitheatre Pkwy, Mountain View, CA')
 url = response['payload']['exactMatch']['url']
+
 initial_info = client.initial_info(url)
-
 property_id = initial_info['payload']['propertyId']
-mls_data = client.below_the_fold(property_id)
 
-listing_id = initial_info['payload']['listingId']
-avm_details = client.avm_details(property_id, listing_id)
+# Get estimated value
+avm = client.avm_details(property_id, "")
+predicted_value = avm['payload']['predictedValue']
+print(f"Estimated value: {predicted_value}")
 
+# Get neighborhood walk/bike/transit scores
+stats = client.neighborhood_stats(property_id)
+walk_score = stats['payload']['walkScoreInfo']['walkScoreData']['walkScore']['value']
+print(f"Walk score: {walk_score}")
+```
+
+## What's Fixed
+
+### 403 Errors (issues #19, #21)
+
+The original library sent `user-agent: redfin` which Redfin's CDN now blocks with a 403 response.
+This fork uses a real browser User-Agent by default:
 
 ```
-### Usage Notes
+Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36
+```
 
-+ sometimes `below_the_fold` lacks propertyHistoryInfo -- see [#11](https://github.com/reteps/redfin/issues/11) if this is needed
+You can override it:
 
-### Documentation
+```python
+client = Redfin(user_agent="MyApp/1.0 (contact@example.com)")
+```
 
-See the file for all functions, pop open requests on redfin to see which one you want.
+### Rate Limiting (issue #18)
+
+Add a delay between requests to avoid hitting Redfin's rate limits:
+
+```python
+client = Redfin(request_delay=1.0)  # 1 second between requests
+```
+
+The client also automatically handles 429 responses by sleeping the `Retry-After` header duration and retrying once.
+
+## New Methods
+
+### `neighborhood_stats(property_id)`
+
+Returns neighborhood walk score, bike score, transit score, and full address info.
+
+```python
+stats = client.neighborhood_stats(property_id)
+payload = stats['payload']
+walk_score = payload['walkScoreInfo']['walkScoreData']['walkScore']['value']
+bike_score = payload['walkScoreInfo']['walkScoreData']['bikeScore']['value']
+transit_score = payload['walkScoreInfo']['walkScoreData']['transitScore']['value']
+city = payload['addressInfo']['city']
+state = payload['addressInfo']['state']
+```
+
+## Notes on `above_the_fold` and `info_panel`
+
+These methods still exist in the library but may be blocked by Redfin's CDN for some endpoints (returning 403 or incorrect data). They are kept for backward compatibility. Use `neighborhood_stats` instead for address and scores data.
+
+## All Methods
+
+### URL-based
+- `initial_info(url)`
+- `page_tags(url)`
+- `primary_region(url)`
+- `search(query)`
+
+### Property ID-based
+- `avm_details(property_id, listing_id)` ✅ working
+- `neighborhood_stats(property_id)` ✅ working (new)
+- `below_the_fold(property_id)`
+- `hood_photos(property_id)`
+- `more_resources(property_id)`
+- `page_header(property_id)`
+- `property_comments(property_id)`
+- `building_details_page(property_id)`
+- `owner_estimate(property_id)`
+- `claimed_home_seller_data(property_id)`
+- `cost_of_home_ownership(property_id)`
+- `above_the_fold(property_id, listing_id)` ⚠️ may be blocked by CDN
+- `info_panel(property_id, listing_id)` ⚠️ may be blocked by CDN
+- `similar_listings(property_id, listing_id)`
+- `similar_sold(property_id, listing_id)`
+- `nearby_homes(property_id, listing_id)`
+- `avm_historical(property_id, listing_id)`
+- `descriptive_paragraph(property_id, listing_id)`
+- `tour_insights(property_id, listing_id)`
+- `stats(property_id, listing_id, region_id)`
+
+### Listing ID-based
+- `floor_plans(listing_id)`
+- `tour_list_date_picker(listing_id)`
+
+### Table ID-based
+- `shared_region(table_id)`
+
+## License
+
+MIT — see [LICENSE.txt](LICENSE.txt)
+
+Original library by [Peter Stenger](https://github.com/reteps/redfin).  
+Maintained fork by [Preston Tamkin](https://github.com/prestomation).

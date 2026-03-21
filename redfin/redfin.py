@@ -1,25 +1,44 @@
-import requests
 import json
+import time
+
+import requests
+
+DEFAULT_USER_AGENT = (
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
+    "AppleWebKit/537.36 (KHTML, like Gecko) "
+    "Chrome/120.0.0.0 Safari/537.36"
+)
 
 
 class Redfin:
-    def __init__(self):
+    def __init__(self, user_agent=None, request_delay=0):
         self.base = 'https://redfin.com/stingray/'
         self.user_agent_header = {
-            'user-agent': 'redfin'
+            'user-agent': user_agent if user_agent is not None else DEFAULT_USER_AGENT
         }
+        self.request_delay = request_delay
 
     def meta_property(self, url, kwargs, page=False):
         if page:
             kwargs['pageType'] = 3
         return self.meta_request('api/home/details/' + url, {
-            'accessLevel': 1,
+            'accessLevel': 3,
             **kwargs
         })
 
     def meta_request(self, url, kwargs):
+        if self.request_delay:
+            time.sleep(self.request_delay)
+
         response = requests.get(
             self.base + url, params=kwargs, headers=self.user_agent_header)
+
+        if response.status_code == 429:
+            retry_after = int(response.headers.get('Retry-After', 60))
+            time.sleep(retry_after)
+            response = requests.get(
+                self.base + url, params=kwargs, headers=self.user_agent_header)
+
         response.raise_for_status()
         return json.loads(response.text[4:])
 
@@ -65,6 +84,9 @@ class Redfin:
 
     def cost_of_home_ownership(self, property_id, **kwargs):
         return self.meta_request('do/api/costOfHomeOwnershipDetails', {'propertyId': property_id, **kwargs})
+
+    def neighborhood_stats(self, property_id, **kwargs):
+        return self.meta_request('api/home/details/neighborhoodStats/statsInfo', {'propertyId': property_id, 'accessLevel': 3, **kwargs})
 
     # Listing ID Requests
     def floor_plans(self, listing_id, **kwargs):

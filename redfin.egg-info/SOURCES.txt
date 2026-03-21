@@ -1,4 +1,6 @@
+LICENSE.txt
 README.md
+pyproject.toml
 setup.py
 redfin/__init__.py
 redfin/redfin.py
@@ -7,3 +9,5 @@ redfin.egg-info/SOURCES.txt
 redfin.egg-info/dependency_links.txt
 redfin.egg-info/requires.txt
 redfin.egg-info/top_level.txt
+tests/__init__.py
+tests/test_redfin.py
