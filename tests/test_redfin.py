@@ -30,13 +30,7 @@ class TestUserAgent(unittest.TestCase):
         mock_get.return_value = make_response({})
         client = Redfin()
         client.meta_request("api/home/details/initialInfo", {"path": "/some/path"})
-        _, kwargs = mock_get.call_args
-        headers = kwargs.get("headers") or mock_get.call_args[0][1] if len(mock_get.call_args[0]) > 1 else mock_get.call_args[1].get("headers")
-        # Check via call_args
-        call_kwargs = mock_get.call_args
-        sent_headers = call_kwargs[1].get("headers", call_kwargs[0][1] if len(call_kwargs[0]) > 1 else None)
-        if sent_headers is None:
-            sent_headers = call_kwargs[1]["headers"]
+        sent_headers = mock_get.call_args[1]["headers"]
         self.assertEqual(sent_headers["user-agent"], DEFAULT_USER_AGENT)
 
     @patch("redfin.redfin.requests.get")
@@ -258,6 +252,83 @@ class TestExistingMethodsPreserved(unittest.TestCase):
         self.assertTrue(mock_get.called)
         url = mock_get.call_args[0][0]
         self.assertIn("mainHouseInfoPanelInfo", url)
+
+
+class TestResponseFormat(unittest.TestCase):
+    """Test response parsing edge cases."""
+
+    @patch("redfin.redfin.requests.get")
+    def test_empty_response_body_raises_value_error(self, mock_get):
+        resp = MagicMock()
+        resp.status_code = 200
+        resp.text = ""
+        resp.raise_for_status = MagicMock()
+        mock_get.return_value = resp
+        client = Redfin()
+        with self.assertRaises(ValueError):
+            client.search("test")
+
+    @patch("redfin.redfin.requests.get")
+    def test_html_response_raises_value_error(self, mock_get):
+        resp = MagicMock()
+        resp.status_code = 200
+        resp.text = "<!DOCTYPE html><html><body>Captcha challenge</body></html>"
+        resp.raise_for_status = MagicMock()
+        mock_get.return_value = resp
+        client = Redfin()
+        with self.assertRaises(ValueError) as ctx:
+            client.search("test")
+        self.assertIn("Unexpected Redfin API response format", str(ctx.exception))
+
+    @patch("redfin.redfin.time.sleep")
+    @patch("redfin.redfin.requests.get")
+    def test_persistent_429_raises_http_error(self, mock_get, mock_sleep):
+        import requests as req
+        resp_429a = MagicMock()
+        resp_429a.status_code = 429
+        resp_429a.headers = {"Retry-After": "5"}
+        resp_429a.raise_for_status = MagicMock()
+
+        resp_429b = MagicMock()
+        resp_429b.status_code = 429
+        resp_429b.headers = {}
+        resp_429b.raise_for_status.side_effect = req.exceptions.HTTPError("429 Too Many Requests")
+
+        mock_get.side_effect = [resp_429a, resp_429b]
+        client = Redfin()
+        with self.assertRaises(req.exceptions.HTTPError):
+            client.search("test")
+        self.assertEqual(mock_get.call_count, 2)
+
+    @patch("redfin.redfin.time.sleep")
+    @patch("redfin.redfin.requests.get")
+    def test_retry_after_http_date_format_falls_back_to_60(self, mock_get, mock_sleep):
+        resp_429 = MagicMock()
+        resp_429.status_code = 429
+        resp_429.headers = {"Retry-After": "Sat, 22 Mar 2026 00:00:00 GMT"}
+        resp_429.raise_for_status = MagicMock()
+        resp_ok = make_response({})
+        mock_get.side_effect = [resp_429, resp_ok]
+        client = Redfin()
+        client.search("test")
+        mock_sleep.assert_called_once_with(60)
+
+    @patch("redfin.redfin.time.sleep")
+    @patch("redfin.redfin.requests.get")
+    def test_request_delay_applied_in_retry_path(self, mock_get, mock_sleep):
+        from unittest.mock import call
+        resp_429 = MagicMock()
+        resp_429.status_code = 429
+        resp_429.headers = {"Retry-After": "10"}
+        resp_429.raise_for_status = MagicMock()
+        resp_ok = make_response({})
+        mock_get.side_effect = [resp_429, resp_ok]
+        client = Redfin(request_delay=1.5)
+        client.search("test")
+        # Should sleep: request_delay (before first), retry_after (on 429), request_delay (before retry)
+        sleep_calls = mock_sleep.call_args_list
+        self.assertIn(call(1.5), sleep_calls)
+        self.assertIn(call(10), sleep_calls)
 
 
 if __name__ == "__main__":

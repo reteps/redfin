@@ -34,13 +34,24 @@ class Redfin:
             self.base + url, params=kwargs, headers=self.user_agent_header)
 
         if response.status_code == 429:
-            retry_after = int(response.headers.get('Retry-After', 60))
+            retry_after_raw = response.headers.get('Retry-After', '60')
+            try:
+                retry_after = min(int(retry_after_raw), 300)  # also cap at 300s
+            except ValueError:
+                retry_after = 60  # HTTP-date format fallback
             time.sleep(retry_after)
+            if self.request_delay:
+                time.sleep(self.request_delay)
             response = requests.get(
                 self.base + url, params=kwargs, headers=self.user_agent_header)
 
         response.raise_for_status()
-        return json.loads(response.text[4:])
+        text = response.text
+        if len(text) < 4 or not text.startswith("{}&&"):
+            raise ValueError(
+                f"Unexpected Redfin API response format (status={response.status_code}): {text[:200]!r}"
+            )
+        return json.loads(text[4:])
 
     # Url Requests
 
