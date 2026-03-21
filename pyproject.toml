@@ -20,6 +20,12 @@ classifiers = [
     "Programming Language :: Python :: 3",
 ]
 
+[project.optional-dependencies]
+dev = ["pytest", "requests"]
+
+[project.scripts]
+redfin = "redfin.cli:main"
+
 [project.urls]
 Homepage = "https://github.com/prestomation/pyredfin"
 "Bug Tracker" = "https://github.com/prestomation/pyredfin/issues"
