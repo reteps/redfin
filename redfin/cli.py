@@ -7,50 +7,6 @@ import sys
 from redfin.redfin import Redfin
 
 
-def cmd_search(client, args):
-    """Search for a property by address and return property IDs.
-    
-    NOTE: The search endpoint (do/location-autocomplete) may be blocked by
-    CloudFront (HTTP 403) on many IPs. If blocked, try --user-agent with a
-    real browser UA string, or use a residential IP.
-    """
-    try:
-        result = client.search(args.query)
-    except Exception as e:
-        err = str(e)
-        if "403" in err:
-            print(
-                "Error: Search endpoint blocked by CloudFront (403 Forbidden).\n"
-                "Try: --user-agent '<browser UA>' or run from a residential IP.\n"
-                "The estimate and neighborhood commands are unaffected.",
-                file=sys.stderr,
-            )
-        else:
-            print(f"Error: {e}", file=sys.stderr)
-        sys.exit(1)
-    if result.get("resultCode") != 0:
-        print(f"Error: {result.get('errorMessage')}", file=sys.stderr)
-        sys.exit(1)
-    payload = result.get("payload", {})
-    sections = payload.get("sections", [])
-    found = False
-    for section in sections:
-        for row in section.get("rows", []):
-            prop_id = row.get("id", {}).get("propertyId")
-            url = row.get("url", "")
-            name = row.get("name", "")
-            subname = row.get("subName", "")
-            if prop_id:
-                print(f"Property ID: {prop_id}  |  {name} {subname}  |  {url}")
-                found = True
-    if not found:
-        # Try alternate payload shape
-        if args.json:
-            print(json.dumps(payload, indent=2))
-        else:
-            print("No results found. Use --json to see raw response.")
-
-
 def cmd_estimate(client, args):
     """Get the Redfin estimate for a property ID."""
     result = client.avm_details(args.property_id, "")
@@ -128,11 +84,6 @@ def main():
 
     subparsers = parser.add_subparsers(dest="command", required=True)
 
-    # search command
-    p_search = subparsers.add_parser("search", help="Search for a property by address")
-    p_search.add_argument("query", help="Address or search query")
-    p_search.add_argument("--json", action="store_true", help="Output raw JSON payload")
-
     # estimate command
     p_estimate = subparsers.add_parser("estimate", help="Get Redfin estimate for a property")
     p_estimate.add_argument("property_id", help="Redfin property ID (numeric)")
@@ -148,9 +99,7 @@ def main():
     args = parser.parse_args()
     client = Redfin(user_agent=args.user_agent, request_delay=args.delay)
 
-    if args.command == "search":
-        cmd_search(client, args)
-    elif args.command == "estimate":
+    if args.command == "estimate":
         cmd_estimate(client, args)
     elif args.command == "neighborhood":
         cmd_neighborhood(client, args)
