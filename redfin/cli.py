@@ -33,8 +33,8 @@ def cmd_estimate(client, args):
         print(f"Estimate:      ${predicted:,.0f}")
     if preview:
         print(f"Summary:       {preview}")
-    if last_sold:
-        print(f"Last Sold:     ${last_sold:,}")
+    if last_sold is not None:
+        print(f"Last Sold:     ${last_sold:,.0f}")
     if lat and lng:
         print(f"Location:      {lat}, {lng}")
 
@@ -71,9 +71,6 @@ def main():
     parser = argparse.ArgumentParser(
         prog="redfin",
         description="Query Redfin property data from the command line.",
-    )
-    parser.add_argument(
-        "--json", action="store_true", help="Output raw JSON payload"
     )
     parser.add_argument(
         "--user-agent", default=None, help="Override the User-Agent header"
