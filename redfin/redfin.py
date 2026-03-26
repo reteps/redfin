@@ -1,27 +1,57 @@
-import requests
 import json
+import time
+
+import requests
+
+DEFAULT_USER_AGENT = (
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
+    "AppleWebKit/537.36 (KHTML, like Gecko) "
+    "Chrome/120.0.0.0 Safari/537.36"
+)
 
 
 class Redfin:
-    def __init__(self):
+    def __init__(self, user_agent=None, request_delay=0):
         self.base = 'https://redfin.com/stingray/'
         self.user_agent_header = {
-            'user-agent': 'redfin'
+            'user-agent': user_agent if user_agent is not None else DEFAULT_USER_AGENT
         }
+        self.request_delay = request_delay
 
     def meta_property(self, url, kwargs, page=False):
         if page:
             kwargs['pageType'] = 3
         return self.meta_request('api/home/details/' + url, {
-            'accessLevel': 1,
+            'accessLevel': 3,
             **kwargs
         })
 
     def meta_request(self, url, kwargs):
+        if self.request_delay:
+            time.sleep(self.request_delay)
+
         response = requests.get(
             self.base + url, params=kwargs, headers=self.user_agent_header)
+
+        if response.status_code == 429:
+            retry_after_raw = response.headers.get('Retry-After', '60')
+            try:
+                retry_after = min(int(retry_after_raw), 300)  # also cap at 300s
+            except ValueError:
+                retry_after = 60  # HTTP-date format fallback
+            time.sleep(retry_after)
+            if self.request_delay:
+                time.sleep(self.request_delay)
+            response = requests.get(
+                self.base + url, params=kwargs, headers=self.user_agent_header)
+
         response.raise_for_status()
-        return json.loads(response.text[4:])
+        text = response.text
+        if len(text) < 4 or not text.startswith("{}&&"):
+            raise ValueError(
+                f"Unexpected Redfin API response format (status={response.status_code}): {text[:200]!r}"
+            )
+        return json.loads(text[4:])
 
     # Url Requests
 
@@ -65,6 +95,9 @@ class Redfin:
 
     def cost_of_home_ownership(self, property_id, **kwargs):
         return self.meta_request('do/api/costOfHomeOwnershipDetails', {'propertyId': property_id, **kwargs})
+
+    def neighborhood_stats(self, property_id, **kwargs):
+        return self.meta_request('api/home/details/neighborhoodStats/statsInfo', {'propertyId': property_id, 'accessLevel': 3, **kwargs})
 
     # Listing ID Requests
     def floor_plans(self, listing_id, **kwargs):
