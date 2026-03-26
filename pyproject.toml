@@ -27,5 +27,5 @@ dev = ["pytest", "requests"]
 redfin = "redfin.cli:main"
 
 [project.urls]
-Homepage = "https://github.com/prestomation/pyredfin"
-"Bug Tracker" = "https://github.com/prestomation/pyredfin/issues"
+Homepage = "https://github.com/reteps/redfin"
+"Bug Tracker" = "https://github.com/reteps/redfin/issues"

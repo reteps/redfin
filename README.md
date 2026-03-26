@@ -2,7 +2,6 @@
 
 A Python wrapper around the unofficial Redfin API.
 
-**Maintained fork:** [`prestomation/pyredfin`](https://github.com/prestomation/pyredfin) — fixes 403 errors and adds new methods.  
 **PyPI package name:** `redfin` (unchanged from the original `reteps/redfin`).
 
 ## Installation
@@ -14,7 +13,6 @@ pip install redfin
 Or install directly from GitHub (latest fixes):
 
 ```bash
-pip install "redfin @ git+https://github.com/prestomation/pyredfin@main"
 ```
 
 ## Usage
@@ -130,4 +128,3 @@ These methods still exist in the library but may be blocked by Redfin's CDN for 
 MIT — see [LICENSE.txt](LICENSE.txt)
 
 Original library by [Peter Stenger](https://github.com/reteps/redfin).  
-Maintained fork by [Preston Tamkin](https://github.com/prestomation).
