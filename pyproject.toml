@@ -38,5 +38,8 @@ exclude = ["build"]
 select = ["E", "F", "W", "I", "UP", "B", "SIM"]
 ignore = ["E501"]  # line length handled by ruff format
 
+[tool.ty.src]
+exclude = ["build", "setup.py"]
+
 [tool.ty.environment]
 python-version = "3.8"
