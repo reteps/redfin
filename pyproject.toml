@@ -32,14 +32,10 @@ Homepage = "https://github.com/reteps/redfin"
 
 [tool.ruff]
 target-version = "py38"
-exclude = ["build"]
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "I", "UP", "B", "SIM"]
 ignore = ["E501"]  # line length handled by ruff format
-
-[tool.ty.src]
-exclude = ["build", "setup.py"]
 
 [tool.ty.environment]
 python-version = "3.8"
