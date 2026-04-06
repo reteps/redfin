@@ -1,18 +1,14 @@
 # redfin
 
-A Python wrapper around the unofficial Redfin API.
+[![PyPI](https://img.shields.io/pypi/v/redfin)](https://pypi.org/project/redfin/)
+[![Tests](https://github.com/reteps/redfin/actions/workflows/tests.yml/badge.svg)](https://github.com/reteps/redfin/actions/workflows/tests.yml)
 
-**PyPI package name:** `redfin` (unchanged from the original `reteps/redfin`).
+A Python wrapper around the unofficial Redfin API.
 
 ## Installation
 
 ```bash
 pip install redfin
-```
-
-Or install directly from GitHub (latest fixes):
-
-```bash
 ```
 
 ## Usage
@@ -39,24 +35,15 @@ walk_score = stats['payload']['walkScoreInfo']['walkScoreData']['walkScore']['va
 print(f"Walk score: {walk_score}")
 ```
 
-## What's Fixed
+## Configuration
 
-### 403 Errors (issues #19, #21)
-
-The original library sent `user-agent: redfin` which Redfin's CDN now blocks with a 403 response.
-This fork uses a real browser User-Agent by default:
-
-```
-Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36
-```
-
-You can override it:
+### Custom User-Agent
 
 ```python
 client = Redfin(user_agent="MyApp/1.0 (contact@example.com)")
 ```
 
-### Rate Limiting (issue #18)
+### Rate Limiting
 
 Add a delay between requests to avoid hitting Redfin's rate limits:
 
@@ -66,25 +53,20 @@ client = Redfin(request_delay=1.0)  # 1 second between requests
 
 The client also automatically handles 429 responses by sleeping the `Retry-After` header duration and retrying once.
 
-## New Methods
+## CLI
 
-### `neighborhood_stats(property_id)`
-
-Returns neighborhood walk score, bike score, transit score, and full address info.
-
-```python
-stats = client.neighborhood_stats(property_id)
-payload = stats['payload']
-walk_score = payload['walkScoreInfo']['walkScoreData']['walkScore']['value']
-bike_score = payload['walkScoreInfo']['walkScoreData']['bikeScore']['value']
-transit_score = payload['walkScoreInfo']['walkScoreData']['transitScore']['value']
-city = payload['addressInfo']['city']
-state = payload['addressInfo']['state']
+```bash
+redfin estimate <property_id>        # print estimate, beds/baths, last sold price
+redfin neighborhood <property_id>    # print walk/bike/transit scores
 ```
 
-## Notes on `above_the_fold` and `info_panel`
+Options:
 
-These methods still exist in the library but may be blocked by Redfin's CDN for some endpoints (returning 403 or incorrect data). They are kept for backward compatibility. Use `neighborhood_stats` instead for address and scores data.
+```bash
+redfin --user-agent "MyApp/1.0" estimate 12345   # custom User-Agent
+redfin --delay 1.5 neighborhood 12345             # delay between requests
+redfin estimate --json 12345                      # raw JSON output
+```
 
 ## All Methods
 
@@ -95,8 +77,8 @@ These methods still exist in the library but may be blocked by Redfin's CDN for 
 - `search(query)`
 
 ### Property ID-based
-- `avm_details(property_id, listing_id)` ✅ working
-- `neighborhood_stats(property_id)` ✅ working (new)
+- `avm_details(property_id, listing_id)`
+- `neighborhood_stats(property_id)`
 - `below_the_fold(property_id)`
 - `hood_photos(property_id)`
 - `more_resources(property_id)`
@@ -106,8 +88,8 @@ These methods still exist in the library but may be blocked by Redfin's CDN for 
 - `owner_estimate(property_id)`
 - `claimed_home_seller_data(property_id)`
 - `cost_of_home_ownership(property_id)`
-- `above_the_fold(property_id, listing_id)` ⚠️ may be blocked by CDN
-- `info_panel(property_id, listing_id)` ⚠️ may be blocked by CDN
+- `above_the_fold(property_id, listing_id)`
+- `info_panel(property_id, listing_id)`
 - `similar_listings(property_id, listing_id)`
 - `similar_sold(property_id, listing_id)`
 - `nearby_homes(property_id, listing_id)`
@@ -126,5 +108,3 @@ These methods still exist in the library but may be blocked by Redfin's CDN for 
 ## License
 
 MIT — see [LICENSE.txt](LICENSE.txt)
-
-Original library by [Peter Stenger](https://github.com/reteps/redfin).  
