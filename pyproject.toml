@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "redfin"
-version = "0.2.0"
+version = "0.2.1"
 description = "A Python wrapper around the unofficial Redfin API."
 readme = "README.md"
 license = {text = "MIT"}
