@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Simple CLI for the redfin library."""
+
 import argparse
 import json
 import sys
@@ -82,16 +83,22 @@ def main():
     subparsers = parser.add_subparsers(dest="command", required=True)
 
     # estimate command
-    p_estimate = subparsers.add_parser("estimate", help="Get Redfin estimate for a property")
+    p_estimate = subparsers.add_parser(
+        "estimate", help="Get Redfin estimate for a property"
+    )
     p_estimate.add_argument("property_id", help="Redfin property ID (numeric)")
-    p_estimate.add_argument("--json", action="store_true", help="Output raw JSON payload")
+    p_estimate.add_argument(
+        "--json", action="store_true", help="Output raw JSON payload"
+    )
 
     # neighborhood command
     p_neighborhood = subparsers.add_parser(
         "neighborhood", help="Get walk/bike/transit scores for a property"
     )
     p_neighborhood.add_argument("property_id", help="Redfin property ID (numeric)")
-    p_neighborhood.add_argument("--json", action="store_true", help="Output raw JSON payload")
+    p_neighborhood.add_argument(
+        "--json", action="store_true", help="Output raw JSON payload"
+    )
 
     args = parser.parse_args()
     client = Redfin(user_agent=args.user_agent, request_delay=args.delay)

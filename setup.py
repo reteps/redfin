@@ -1,7 +1,8 @@
 from distutils.core import setup
+
 import setuptools
 
-with open("README.md", "r", encoding="utf-8") as fh:
+with open("README.md", encoding="utf-8") as fh:
     long_description = fh.read()
 setup(
     name="redfin",  # How you named your package folder (MyLib)

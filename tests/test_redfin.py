@@ -1,8 +1,8 @@
 """Comprehensive tests for the redfin library."""
+
 import json
-import time
 import unittest
-from unittest.mock import MagicMock, patch, call
+from unittest.mock import MagicMock, call, patch
 
 from redfin import Redfin
 from redfin.redfin import DEFAULT_USER_AGENT
@@ -284,6 +284,7 @@ class TestResponseFormat(unittest.TestCase):
     @patch("redfin.redfin.requests.get")
     def test_persistent_429_raises_http_error(self, mock_get, mock_sleep):
         import requests as req
+
         resp_429a = MagicMock()
         resp_429a.status_code = 429
         resp_429a.headers = {"Retry-After": "5"}
@@ -292,7 +293,9 @@ class TestResponseFormat(unittest.TestCase):
         resp_429b = MagicMock()
         resp_429b.status_code = 429
         resp_429b.headers = {}
-        resp_429b.raise_for_status.side_effect = req.exceptions.HTTPError("429 Too Many Requests")
+        resp_429b.raise_for_status.side_effect = req.exceptions.HTTPError(
+            "429 Too Many Requests"
+        )
 
         mock_get.side_effect = [resp_429a, resp_429b]
         client = Redfin()
@@ -316,7 +319,6 @@ class TestResponseFormat(unittest.TestCase):
     @patch("redfin.redfin.time.sleep")
     @patch("redfin.redfin.requests.get")
     def test_request_delay_applied_in_retry_path(self, mock_get, mock_sleep):
-        from unittest.mock import call
         resp_429 = MagicMock()
         resp_429.status_code = 429
         resp_429.headers = {"Retry-After": "10"}

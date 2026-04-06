@@ -1,1 +1,1 @@
-from redfin.redfin import Redfin
+from redfin.redfin import Redfin as Redfin

@@ -21,7 +21,7 @@ classifiers = [
 ]
 
 [project.optional-dependencies]
-dev = ["pytest", "requests"]
+dev = ["pytest", "requests", "ruff", "ty"]
 
 [project.scripts]
 redfin = "redfin.cli:main"
@@ -29,3 +29,14 @@ redfin = "redfin.cli:main"
 [project.urls]
 Homepage = "https://github.com/reteps/redfin"
 "Bug Tracker" = "https://github.com/reteps/redfin/issues"
+
+[tool.ruff]
+target-version = "py38"
+exclude = ["build"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B", "SIM"]
+ignore = ["E501"]  # line length handled by ruff format
+
+[tool.ty.environment]
+python-version = "3.8"
